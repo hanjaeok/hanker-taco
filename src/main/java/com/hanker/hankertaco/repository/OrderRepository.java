@@ -1,9 +1,12 @@
 package com.hanker.hankertaco.repository;
 
 import com.hanker.hankertaco.domain.Order;
+import org.springframework.data.repository.CrudRepository;
 
-public interface OrderRepository {
+import java.util.List;
 
-    Order save(Order order);
+public interface OrderRepository extends CrudRepository<Order, Long> {
+
+    List<Order> findByDeliveryZip(String deliveryZip);
 
 }
