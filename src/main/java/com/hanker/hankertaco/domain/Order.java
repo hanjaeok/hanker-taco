@@ -25,6 +25,10 @@ public class Order implements Serializable {
 
     private Date placedAt;
 
+    // 한명의 User는 많은 Order를 할 수 있다.
+    @ManyToOne
+    private User user;
+
     @NotBlank(message="Name is required")
     private String deliveryName;
 
@@ -58,6 +62,7 @@ public class Order implements Serializable {
 
     @PrePersist
     void placedAt(){
-
     }
+
+
 }

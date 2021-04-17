@@ -3,8 +3,10 @@ package com.hanker.hankertaco.controller;
 import com.hanker.hankertaco.domain.Ingredient;
 import com.hanker.hankertaco.domain.Order;
 import com.hanker.hankertaco.domain.Taco;
+import com.hanker.hankertaco.domain.User;
 import com.hanker.hankertaco.repository.IngredientRepository;
 import com.hanker.hankertaco.repository.TacoRepository;
+import com.hanker.hankertaco.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,15 +28,18 @@ public class DesignController {
 
     private final IngredientRepository ingredientRepository;
     private TacoRepository tacoRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    public DesignController(IngredientRepository ingredientRepository, TacoRepository tacoRepository) {
+    public DesignController(IngredientRepository ingredientRepository, TacoRepository tacoRepository,
+                            UserRepository userRepository) {
         this.ingredientRepository = ingredientRepository;
         this.tacoRepository = tacoRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
-    public String showDesignForm(Model model){
+    public String showDesignForm(Model model, Principal principal){
 
         List<Ingredient> ingredients = new ArrayList<>();
         ingredientRepository.findAll().forEach(i -> ingredients.add(i));
@@ -44,7 +50,9 @@ public class DesignController {
             model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
         }
 
-        model.addAttribute("taco", new Taco());
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username);
+        model.addAttribute("user", user);
 
         return "design";
     }
