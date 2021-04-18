@@ -3,7 +3,11 @@ package com.hanker.hankertaco.controller;
 import com.hanker.hankertaco.domain.Order;
 import com.hanker.hankertaco.domain.User;
 import com.hanker.hankertaco.repository.OrderRepository;
+import com.hanker.hankertaco.web.OrderProps;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +23,13 @@ import javax.validation.Valid;
 @SessionAttributes("order")
 public class OrderController {
 
+    private OrderProps orderProps;
+
     private OrderRepository orderRepository;
 
-    public OrderController(OrderRepository orderRepository){
+    public OrderController(OrderRepository orderRepository, OrderProps orderProps){
         this.orderRepository = orderRepository;
+        this.orderProps = orderProps;
     }
 
     @GetMapping("/current")
@@ -46,6 +53,17 @@ public class OrderController {
         }
 
         return "orderForm";
+    }
+
+    @GetMapping
+    public String ordersForUser(
+            @AuthenticationPrincipal User user, Model model){
+
+        Pageable pageable = PageRequest.of(0, orderProps.getPageSize()); // 페이징 처리 20개
+
+        model.addAttribute("orders", orderRepository.findByUserOrderByPlacedAtDesc(user, pageable));
+
+        return "orderList";
     }
 
     @PostMapping
